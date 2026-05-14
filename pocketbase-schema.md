@@ -1,8 +1,8 @@
 # PocketBase Collection Schema
 
-## Collection: `ideas`
+## Collection: `brew_ideas`
 
-### Fieldsgit commit -m "first commit"
+### Fields
 
 | Field | Type | Required | Options |
 |-------|------|----------|---------|
@@ -30,7 +30,7 @@
 
 ```json
 {
-  "name": "ideas",
+  "name": "brew_ideas",
   "type": "base",
   "schema": [
     {

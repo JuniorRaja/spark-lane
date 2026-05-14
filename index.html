@@ -599,7 +599,7 @@
       grid.innerHTML = '<div class="loading">Loading ideas…</div>';
 
       try {
-        const records = await pb.collection('ideas').getFullList({
+        const records = await pb.collection('brew_ideas').getFullList({
           sort: '-created',
         });
         renderIdeas(records);
@@ -662,7 +662,7 @@
         deleteBtn.style.display = 'block';
 
         try {
-          const idea = await pb.collection('ideas').getOne(id);
+          const idea = await pb.collection('brew_ideas').getOne(id);
           document.getElementById('ideaTitle').value = idea.title;
           // Strip HTML tags for plain textarea editing
           document.getElementById('ideaDescription').value =
@@ -710,10 +710,10 @@
 
       try {
         if (currentEditId) {
-          await pb.collection('ideas').update(currentEditId, { title, description, status });
+          await pb.collection('brew_ideas').update(currentEditId, { title, description, status });
           showToast('Idea updated');
         } else {
-          await pb.collection('ideas').create({ title, description, status });
+          await pb.collection('brew_ideas').create({ title, description, status });
           showToast('Idea saved');
         }
         closeEditPage();
@@ -738,7 +738,7 @@
       deleteBtn.textContent = 'Deleting…';
 
       try {
-        await pb.collection('ideas').delete(currentEditId);
+        await pb.collection('brew_ideas').delete(currentEditId);
         showToast('Idea deleted');
         closeEditPage();
         loadIdeas();
