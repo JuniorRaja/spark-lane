@@ -2,7 +2,7 @@
 
 ## Collection: `ideas`
 
-### Fields
+### Fieldsgit commit -m "first commit"
 
 | Field | Type | Required | Options |
 |-------|------|----------|---------|
