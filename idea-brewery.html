@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Idea Brewery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Karla:wght@400;700&family=Fraunces:opsz,wght@9..144,600;9..144,900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #1a1a1a;
+      --border: #2a2a2a;
+      --text: #e8e8e8;
+      --text-dim: #888;
+      --accent: #ff6b35;
+      --accent-glow: rgba(255, 107, 53, 0.2);
+      --status-raw: #666;
+      --status-brewing: #f4a261;
+      --status-validated: #2a9d8f;
+      --status-mvp: #e76f51;
+      --status-shipped: #264653;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Karla', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    /* ── Login Page ── */
+    #loginPage {
+      display: none;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    #loginPage.active { display: flex; }
+
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .login-card h1 {
+      font-family: 'Fraunces', serif;
+      font-size: 2rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), #ff8956);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.25rem;
+    }
+
+    .login-card p {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+    }
+
+    .login-error {
+      background: rgba(214, 40, 40, 0.15);
+      border: 1px solid #d62828;
+      color: #ff6b6b;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.9rem;
+      margin-bottom: 1.25rem;
+      display: none;
+    }
+
+    .login-error.visible { display: block; }
+
+    .login-form .form-group { margin-bottom: 1.25rem; }
+
+    .login-form label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+    }
+
+    .login-form input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      font-family: 'Karla', sans-serif;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    .login-form input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .login-btn {
+      width: 100%;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 0.85rem;
+      border-radius: 0.5rem;
+      font-family: 'Karla', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 0.5rem;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .login-btn:hover { transform: scale(1.02); box-shadow: 0 0 30px var(--accent-glow); }
+    .login-btn:active { transform: scale(0.98); }
+    .login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* ── App Shell ── */
+    #appShell { display: none; }
+    #appShell.active { display: block; }
+
+    header {
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      gap: 1rem;
+    }
+
+    h1 {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(1.5rem, 5vw, 2.5rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), #ff8956);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.02em;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .user-badge {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      display: none;
+    }
+
+    @media (min-width: 480px) { .user-badge { display: block; } }
+
+    .logout-btn {
+      background: transparent;
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+      padding: 0.4rem 0.85rem;
+      border-radius: 2rem;
+      font-family: 'Karla', sans-serif;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .logout-btn:hover { border-color: #d62828; color: #ff6b6b; }
+
+    .add-btn {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 2rem;
+      font-family: 'Karla', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .add-btn:hover { transform: scale(1.05); box-shadow: 0 0 30px var(--accent-glow); }
+    .add-btn:active { transform: scale(0.98); }
+
+    /* ── Grid ── */
+    .ideas-grid {
+      column-count: 1;
+      column-gap: 1.5rem;
+      padding: 2rem 0;
+    }
+
+    @media (min-width: 640px) { .ideas-grid { column-count: 2; } }
+    @media (min-width: 1024px) { .ideas-grid { column-count: 3; } }
+
+    /* ── Idea Card ── */
+    .idea-card {
+      break-inside: avoid;
+      margin-bottom: 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .idea-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--status-raw);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .idea-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3), 0 0 0 1px var(--accent);
+    }
+
+    .idea-card:hover::before { opacity: 1; }
+    .idea-card[data-status="brewing"]::before { background: var(--status-brewing); }
+    .idea-card[data-status="validated"]::before { background: var(--status-validated); }
+    .idea-card[data-status="mvp"]::before { background: var(--status-mvp); }
+    .idea-card[data-status="shipped"]::before { background: var(--status-shipped); }
+
+    .idea-title {
+      font-family: 'Fraunces', serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      line-height: 1.3;
+    }
+
+    .idea-description {
+      color: var(--text-dim);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-bottom: 1rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .idea-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .status-badge.raw { background: var(--status-raw); color: #fff; }
+    .status-badge.brewing { background: var(--status-brewing); color: #000; }
+    .status-badge.validated { background: var(--status-validated); color: #fff; }
+    .status-badge.mvp { background: var(--status-mvp); color: #fff; }
+    .status-badge.shipped { background: var(--status-shipped); color: #fff; }
+
+    .idea-date { font-size: 0.75rem; color: var(--text-dim); }
+
+    /* ── Edit Page ── */
+    .edit-page {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--bg);
+      z-index: 200;
+      overflow-y: auto;
+    }
+
+    .edit-page.active {
+      display: block;
+      animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .edit-header {
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      z-index: 10;
+    }
+
+    .edit-actions { display: flex; gap: 0.5rem; }
+
+    .btn {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-family: 'Karla', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn:hover { border-color: var(--accent); transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .btn.primary { background: var(--accent); color: #000; border-color: var(--accent); }
+    .btn.danger { background: #d62828; color: #fff; border-color: #d62828; }
+
+    .edit-content {
+      padding: 2rem 1rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .form-group { margin-bottom: 2rem; }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+    }
+
+    input[type="text"],
+    textarea,
+    select {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      font-family: 'Karla', sans-serif;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    textarea { min-height: 200px; resize: vertical; }
+
+    /* ── Misc ── */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-dim);
+    }
+
+    .empty-state h2 {
+      font-family: 'Fraunces', serif;
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
+
+    .loading { text-align: center; padding: 2rem; color: var(--text-dim); }
+
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.75rem 1.5rem;
+      border-radius: 2rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      z-index: 999;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.error { border-color: #d62828; color: #ff6b6b; }
+
+    @media (max-width: 640px) {
+      .btn { padding: 0.5rem 0.75rem; font-size: 0.85rem; }
+      .edit-header h2 { font-size: 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Login Page ── -->
+  <div id="loginPage">
+    <div class="login-card">
+      <h1>Idea Brewery</h1>
+      <p>Sign in to access your ideas</p>
+      <div id="loginError" class="login-error"></div>
+      <form class="login-form" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" placeholder="you@example.com" required autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="login-btn" id="loginBtn">Sign In</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── App Shell ── -->
+  <div id="appShell">
+    <header>
+      <div class="container">
+        <div class="header-content">
+          <h1>Idea Brewery</h1>
+          <div class="header-right">
+            <span class="user-badge" id="userBadge"></span>
+            <button class="logout-btn" onclick="handleLogout()">Sign out</button>
+            <button class="add-btn" onclick="openEditPage()">+ New Idea</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <div id="ideasGrid" class="ideas-grid">
+        <div class="loading">Loading ideas...</div>
+      </div>
+    </main>
+
+    <!-- Edit / View Page -->
+    <div id="editPage" class="edit-page">
+      <div class="edit-header">
+        <h2 id="editTitle">New Idea</h2>
+        <div class="edit-actions">
+          <button class="btn" onclick="closeEditPage()">Cancel</button>
+          <button class="btn danger" id="deleteBtn" onclick="deleteIdea()" style="display:none;">Delete</button>
+          <button class="btn primary" id="saveBtn" onclick="saveIdea()">Save</button>
+        </div>
+      </div>
+      <div class="edit-content">
+        <div class="form-group">
+          <label for="ideaTitle">Title</label>
+          <input type="text" id="ideaTitle" placeholder="What's the idea?">
+        </div>
+        <div class="form-group">
+          <label for="ideaDescription">Description</label>
+          <textarea id="ideaDescription" placeholder="Capture your thoughts..."></textarea>
+        </div>
+        <div class="form-group">
+          <label for="ideaStatus">Status</label>
+          <select id="ideaStatus">
+            <option value="raw">Raw</option>
+            <option value="brewing">Brewing</option>
+            <option value="validated">Validated</option>
+            <option value="mvp">MVP</option>
+            <option value="shipped">Shipped</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <!-- PocketBase SDK (ESM via CDN) -->
+  <script type="module">
+    import PocketBase from 'https://cdn.jsdelivr.net/npm/pocketbase@0.21.3/dist/pocketbase.es.mjs';
+
+    // ── Config ──────────────────────────────────────────────
+    const PB_URL = 'https://db.prasannar.com';
+    const pb = new PocketBase(PB_URL);
+
+    // Disable auto-cancellation so rapid re-renders don't abort in-flight requests
+    pb.autoCancellation(false);
+
+    let currentEditId = null;
+
+    // ── Auth helpers ─────────────────────────────────────────
+
+    function isLoggedIn() {
+      return pb.authStore.isValid;
+    }
+
+    function showLogin() {
+      document.getElementById('loginPage').classList.add('active');
+      document.getElementById('appShell').classList.remove('active');
+    }
+
+    function showApp() {
+      document.getElementById('loginPage').classList.remove('active');
+      document.getElementById('appShell').classList.add('active');
+      const email = pb.authStore.model?.email ?? '';
+      document.getElementById('userBadge').textContent = email;
+    }
+
+    // ── Login ────────────────────────────────────────────────
+
+    window.handleLogin = async function(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const btn = document.getElementById('loginBtn');
+      const errEl = document.getElementById('loginError');
+
+      errEl.classList.remove('visible');
+      btn.disabled = true;
+      btn.textContent = 'Signing in…';
+
+      try {
+        await pb.collection('users').authWithPassword(email, password);
+        showApp();
+        loadIdeas();
+      } catch (err) {
+        const msg = err?.response?.message || 'Invalid email or password.';
+        errEl.textContent = msg;
+        errEl.classList.add('visible');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Sign In';
+      }
+    };
+
+    // ── Logout ───────────────────────────────────────────────
+
+    window.handleLogout = function() {
+      pb.authStore.clear();
+      showLogin();
+      document.getElementById('loginEmail').value = '';
+      document.getElementById('loginPassword').value = '';
+    };
+
+    // ── Load ideas ───────────────────────────────────────────
+
+    async function loadIdeas() {
+      const grid = document.getElementById('ideasGrid');
+      grid.innerHTML = '<div class="loading">Loading ideas…</div>';
+
+      try {
+        const records = await pb.collection('ideas').getFullList({
+          sort: '-created',
+        });
+        renderIdeas(records);
+      } catch (err) {
+        if (err?.status === 401) {
+          // Token expired mid-session
+          pb.authStore.clear();
+          showLogin();
+        } else {
+          grid.innerHTML = '<div class="empty-state"><h2>Failed to load</h2><p>Could not reach the server. Try refreshing.</p></div>';
+          showToast('Failed to load ideas', true);
+        }
+      }
+    }
+
+    // ── Render ───────────────────────────────────────────────
+
+    function renderIdeas(ideas) {
+      const grid = document.getElementById('ideasGrid');
+
+      if (!ideas.length) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <h2>No ideas yet</h2>
+            <p>Tap the button above to capture your first idea.</p>
+          </div>`;
+        return;
+      }
+
+      grid.innerHTML = ideas.map(idea => {
+        const date = new Date(idea.created).toLocaleDateString('en-US', {
+          month: 'short', day: 'numeric', year: 'numeric'
+        });
+        // description from PocketBase editor type may contain HTML
+        const plainDesc = idea.description
+          ? idea.description.replace(/<[^>]*>/g, '').trim()
+          : '';
+
+        return `
+          <div class="idea-card" data-status="${escapeHtml(idea.status)}" onclick="openEditPage('${idea.id}')">
+            <h3 class="idea-title">${escapeHtml(idea.title)}</h3>
+            ${plainDesc ? `<div class="idea-description">${escapeHtml(plainDesc)}</div>` : ''}
+            <div class="idea-meta">
+              <span class="status-badge ${escapeHtml(idea.status)}">${escapeHtml(idea.status)}</span>
+              <span class="idea-date">${date}</span>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    // ── Open edit page ───────────────────────────────────────
+
+    window.openEditPage = async function(id = null) {
+      currentEditId = id;
+      const page = document.getElementById('editPage');
+      const deleteBtn = document.getElementById('deleteBtn');
+
+      if (id) {
+        document.getElementById('editTitle').textContent = 'Edit Idea';
+        deleteBtn.style.display = 'block';
+
+        try {
+          const idea = await pb.collection('ideas').getOne(id);
+          document.getElementById('ideaTitle').value = idea.title;
+          // Strip HTML tags for plain textarea editing
+          document.getElementById('ideaDescription').value =
+            idea.description ? idea.description.replace(/<[^>]*>/g, '') : '';
+          document.getElementById('ideaStatus').value = idea.status;
+        } catch {
+          showToast('Could not load idea', true);
+          return;
+        }
+      } else {
+        document.getElementById('editTitle').textContent = 'New Idea';
+        document.getElementById('ideaTitle').value = '';
+        document.getElementById('ideaDescription').value = '';
+        document.getElementById('ideaStatus').value = 'raw';
+        deleteBtn.style.display = 'none';
+      }
+
+      page.classList.add('active');
+      document.getElementById('ideaTitle').focus();
+    };
+
+    // ── Close edit page ──────────────────────────────────────
+
+    window.closeEditPage = function() {
+      document.getElementById('editPage').classList.remove('active');
+      currentEditId = null;
+    };
+
+    // ── Save idea ────────────────────────────────────────────
+
+    window.saveIdea = async function() {
+      const title = document.getElementById('ideaTitle').value.trim();
+      const description = document.getElementById('ideaDescription').value.trim();
+      const status = document.getElementById('ideaStatus').value;
+      const saveBtn = document.getElementById('saveBtn');
+
+      if (!title) {
+        showToast('Title is required', true);
+        document.getElementById('ideaTitle').focus();
+        return;
+      }
+
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving…';
+
+      try {
+        if (currentEditId) {
+          await pb.collection('ideas').update(currentEditId, { title, description, status });
+          showToast('Idea updated');
+        } else {
+          await pb.collection('ideas').create({ title, description, status });
+          showToast('Idea saved');
+        }
+        closeEditPage();
+        loadIdeas();
+      } catch (err) {
+        const msg = err?.response?.message || 'Failed to save. Try again.';
+        showToast(msg, true);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save';
+      }
+    };
+
+    // ── Delete idea ──────────────────────────────────────────
+
+    window.deleteIdea = async function() {
+      if (!currentEditId) return;
+      if (!confirm('Delete this idea? This cannot be undone.')) return;
+
+      const deleteBtn = document.getElementById('deleteBtn');
+      deleteBtn.disabled = true;
+      deleteBtn.textContent = 'Deleting…';
+
+      try {
+        await pb.collection('ideas').delete(currentEditId);
+        showToast('Idea deleted');
+        closeEditPage();
+        loadIdeas();
+      } catch {
+        showToast('Failed to delete', true);
+        deleteBtn.disabled = false;
+        deleteBtn.textContent = 'Delete';
+      }
+    };
+
+    // ── Toast ────────────────────────────────────────────────
+
+    let toastTimer;
+    window.showToast = function(msg, isError = false) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = 'toast' + (isError ? ' error' : '');
+      // Force reflow so transition fires
+      void el.offsetWidth;
+      el.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+    };
+
+    // ── Escape HTML ──────────────────────────────────────────
+
+    window.escapeHtml = function(text) {
+      if (!text) return '';
+      return String(text).replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+      }[m]));
+    };
+
+    // ── Boot ─────────────────────────────────────────────────
+
+    if (isLoggedIn()) {
+      showApp();
+      loadIdeas();
+    } else {
+      showLogin();
+    }
+  </script>
+</body>
+</html>
