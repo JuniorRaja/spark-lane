@@ -599,7 +599,9 @@
       grid.innerHTML = '<div class="loading">Loading ideas…</div>';
 
       try {
-        const records = await pb.collection('brew_ideas').getFullList();
+        const records = await pb.collection('brew_ideas').getFullList({
+          sort: '-created',
+        });
         renderIdeas(records);
       } catch (err) {
         if (err?.status === 401 || err?.status === 403) {
