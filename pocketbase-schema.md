@@ -9,6 +9,7 @@
 | `title` | text | Yes | min: 1, max: 200 |
 | `description` | editor | No | - |
 | `status` | select | Yes | Options: `raw`, `brewing`, `validated`, `mvp`, `shipped`<br>Default: `raw` |
+| `validation` | json | No | - |
 | `created` | date | Auto | Auto-generated |
 | `updated` | date | Auto | Auto-updated |
 
@@ -61,6 +62,11 @@
           "shipped"
         ]
       }
+    },
+    {
+      "name": "validation",
+      "type": "json",
+      "required": false
     }
   ],
   "indexes": [],
@@ -75,5 +81,15 @@
 ### Notes:
 - `status` tracks idea maturity lifecycle
 - `editor` type for description allows rich text
+- `validation` field stores AI validation data as JSON (score, metrics, insights)
 - Auth rules assume user authentication enabled
 - Adjust rules if you want public/anonymous access
+
+### Schema Changes from Previous Version:
+- **Added**: `validation` field (JSON type) to store AI-powered validation data including:
+  - `score`: Validation score (0-100)
+  - `marketSize`: Market size assessment
+  - `competition`: Competition level
+  - `feasibility`: Technical feasibility
+  - `insights`: Array of insight strings
+  - `metrics`: Object with marketSize, competitors, difficulty values
