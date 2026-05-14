@@ -600,17 +600,18 @@
 
       try {
         const records = await pb.collection('brew_ideas').getFullList({
-          sort: '-created',
+          sort: '-@created',
         });
         renderIdeas(records);
       } catch (err) {
-        if (err?.status === 401) {
-          // Token expired mid-session
+        if (err?.status === 401 || err?.status === 403) {
+          // Token expired or unauthorized mid-session
           pb.authStore.clear();
           showLogin();
         } else {
+          console.error('loadIdeas error:', err);
           grid.innerHTML = '<div class="empty-state"><h2>Failed to load</h2><p>Could not reach the server. Try refreshing.</p></div>';
-          showToast('Failed to load ideas', true);
+          showToast(`Failed to load ideas (${err?.status ?? 'network error'})`, true);
         }
       }
     }
